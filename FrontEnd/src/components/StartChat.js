@@ -77,7 +77,7 @@ export class StartChat extends PureComponent {
       const messageid = memberids.join('_');
 
       const channel = this.state.stream.client.channel('messaging', messageid, {
-        image: Chatuser.image,
+        image: `https://getstream.io/random_svg/?id=rapid-recipe-0&name=${members.join("+")}`,
         name: members.join(", "),
         members: memberids
       });
