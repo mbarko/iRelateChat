@@ -1,7 +1,9 @@
-import { post } from '../Http'
-import { StreamChat } from 'stream-chat';
-import { EThree, IdentityAlreadyExistsError, LookupError } from '@virgilsecurity/e3kit';
 import React, { PureComponent } from 'react';
+import LoadingSpin from 'react-loading-spin';
+import { EThree, IdentityAlreadyExistsError, LookupError } from '@virgilsecurity/e3kit';
+import { StreamChat } from 'stream-chat';
+
+import { post } from '../Http'
 
 export class StartChat extends PureComponent {
   constructor(props) {
@@ -75,7 +77,7 @@ export class StartChat extends PureComponent {
       const messageid = memberids.join('_');
 
       const channel = this.state.stream.client.channel('messaging', messageid, {
-        image: `https://getstream.io/random_svg/?id=rapid-recipe-0&name=${members.join("+")}`,
+        image: Chatuser.image,
         name: members.join(", "),
         members: memberids
       });
@@ -85,11 +87,9 @@ export class StartChat extends PureComponent {
 
       // await channel.update(
       //   {
-      //       name: members.join(", "),
-      //       color: 'blue',
-      //   }, {
-      //     text: 'Thierry changed the channel color to green' 
-      //   },
+      //     name: members.join(", "),
+      //     image: `https://getstream.io/random_svg/?id=rapid-recipe-0&name=${members.join("+")}`,
+      //   }
       // );
 
       // this function used to remove channel data
@@ -216,19 +216,28 @@ export class StartChat extends PureComponent {
   };
 
   render() {
-    let data = '';
     if(this.state.receiver) {
-      data = 'Loading...';
+      return (
+        <div className="container">
+          <div className='subtitle'>
+            <LoadingSpin
+              duration = '2s'
+              width = '15px'
+              timingFunction = 'ease-in-out'
+              size = '100px'
+              primaryColor = 'blue'
+              />
+          </div> 
+        </div>
+      )
     } else {
-      data = 'Thank you for registering, you will now recieve iRelate conversation links via email';
+      return (
+        <div className="container">
+          <div className='subtitle'>
+            <label>Thank you for registering, you will now recieve iRelate conversation links via email</label>
+          </div> 
+        </div>
+      )
     }
-    
-    return (
-      <div className="container">
-        <div className="subtitle">
-          <label> {data} </label> 
-        </div> 
-      </div>
-    )
   }
 }

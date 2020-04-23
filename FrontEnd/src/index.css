@@ -29,12 +29,14 @@ code {
 .container label {
   font-size: 24px;
   margin-bottom: 12px;
+  margin-top: 12px;
   text-align: center;
 }
 
 .container .subtitle {
   font-size: 14px;
   margin-bottom: 12px;
+  margin-top: 10%;
   text-align: center;
 }
 
@@ -79,5 +81,13 @@ code {
 }
 
 .str-chat__input-fileupload {
+  display: none !important;
+}
+
+.str-chat__header-livestream-left--members {
+  display: none !important;
+}
+
+.str-chat__input-footer--count {
   display: none !important;
 }

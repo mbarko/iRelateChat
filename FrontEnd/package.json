@@ -10,6 +10,7 @@
     "@virgilsecurity/keyknox": "^1.0.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-loading-spin": "^1.0.9",
     "react-native": "^0.62.1",
     "react-native-keychain": "^5.0.1",
     "react-native-virgil-crypto": "^0.5.3",

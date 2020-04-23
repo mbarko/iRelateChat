@@ -32,12 +32,17 @@ const mailto = (reciveremail, reciverid, sender) => {
 		from: process.env.MAIL_USERNAME,
 		to: reciveremail,
 		subject: 'New message recieved',
-		html: `			
-				<h2 style="width: 80%; float: left; margin: 4px;">${sender.name} send you a message</h2>
+		html: `	
+				<h2>${sender.name} send you a message</h2>
 				
 				<a href="http://localhost:3000/?id=${sender.id}" target=_blank>
 					Click here to see the message
 				</a>
+
+				<br/>
+				<br/>
+				<br/>
+				<br/>
 
 				<div style="text-align: center; padding: 4px;">
 					<a href=${createLink("facebook", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">

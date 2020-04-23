@@ -13,7 +13,11 @@ const PrivateRoute = ({ component: Component, path, ...rest }) => {
     
     const fn = async () => {
       const id = (new URLSearchParams(window.location.search)).get("id");
-      const url = `/?id=${id}`;
+      let url = '/';
+      if(id){
+        url = `/?id=${id}`;
+      }
+      
       await loginWithRedirect({
         appState: { targetUrl: url }
       });
