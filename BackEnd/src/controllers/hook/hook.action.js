@@ -33,7 +33,7 @@ const mailto = (reciveremail, reciverid, sender) => {
 		to: reciveremail,
 		subject: 'New message recieved',
 		html: `	
-				<h2>${sender.name} send you a message</h2>
+				<p>${sender.name} sent you a message</p>
 				
 				<a href="http://localhost:3000/?id=${sender.id}" target=_blank>
 					Click here to see the message
@@ -44,7 +44,9 @@ const mailto = (reciveremail, reciverid, sender) => {
 				<br/>
 				<br/>
 
-				<div style="text-align: center; padding: 4px;">
+				<div style="text-align: left; padding: 4px;">
+				<p>Help ${sender.name} help mothers you know <3 </p>
+				<br/>
 					<a href=${createLink("facebook", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
 						<img src="https://cache.addthiscdn.com/icons/v3/thumbs/32x32/facebook.png" border="0" alt="Facebook" />
 					</a>

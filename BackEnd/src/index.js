@@ -1,4 +1,6 @@
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
+dotenv.config()
+
 import fs from 'fs';
 import path from 'path';
 import express from 'express';
@@ -7,7 +9,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 
-dotenv.config();
+
 
 const api = express();
 
