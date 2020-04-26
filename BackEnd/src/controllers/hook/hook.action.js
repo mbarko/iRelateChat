@@ -5,19 +5,17 @@ dotenv.config();
 const nodemailer = require('nodemailer');
 const Auth0Manager = require("../../utils/Auth0Manager");
 
-const createLink = (methods, user_id) => {
+const createLink = (methods) => {
 	// the application url
-	const appurl = 'http://localhost:3000';
+	const appurl = 'https://www.irelatetherapy.com/';
 	// link to share the user chat page (comunicate with the registerate user)
-	const usrl = `https://api.addthis.com/oexchange/0.8/forward/${methods}/offer?url=${appurl}/?id=${user_id}`
+	const usrl = `https://api.addthis.com/oexchange/0.8/forward/${methods}/offer?url=${appurl}`
 	return usrl;
 }
 
-const mailto = (reciveremail, reciverid, sender) => {
-	reciverid = reciverid.replace('auth0|', 'auth0-');
+const mailto = (reciveremail, sender) => {
 
 	// create nodemailer opject to send mails
-
 	var transporter = nodemailer.createTransport({
 		host: process.env.MAIL_HOST,
 		port: process.env.MAIL_PORT,
@@ -29,7 +27,7 @@ const mailto = (reciveremail, reciverid, sender) => {
 
 	// message options
 	var mailOptions = {
-		from: process.env.MAIL_USERNAME,
+		from: `${sender.name} (via IRelate) <${process.env.MAIL_USERNAME}>`,
 		to: reciveremail,
 		subject: 'New message recieved',
 		html: `	
@@ -47,19 +45,19 @@ const mailto = (reciveremail, reciverid, sender) => {
 				<div style="text-align: left; padding: 4px;">
 				<p>Help ${sender.name} help mothers you know <3 </p>
 				<br/>
-					<a href=${createLink("facebook", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
+					<a href=${createLink("facebook")} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
 						<img src="https://cache.addthiscdn.com/icons/v3/thumbs/32x32/facebook.png" border="0" alt="Facebook" />
 					</a>
 
-					<a href=${createLink("messenger", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
+					<a href=${createLink("messenger")} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
 						<img src="https://cache.addthiscdn.com/icons/v3/thumbs/32x32/messenger.png" border="0" alt="Facebook Messenger" />
 					</a>
 
-					<a href=${createLink("whatsapp", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
+					<a href=${createLink("whatsapp")} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
 						<img src="https://cache.addthiscdn.com/icons/v3/thumbs/32x32/whatsapp.png" border="0" alt="WhatsApp" />
 					</a>
 
-					<a href=${createLink("twitter", reciverid)} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
+					<a href=${createLink("twitter")} target="_blank" rel="noopener noreferrer" style="padding: 4px;">
 						<img src="https://cache.addthiscdn.com/icons/v3/thumbs/32x32/twitter.png" border="0" alt="Twitter" />
 					</a>
 				</div>
@@ -92,7 +90,7 @@ exports.sendMail = async (req, res) => {
 				const reciveremail = userdata.email;
 
 				const sender = data.user;
-				mailto(reciveremail, id, sender);
+				mailto(reciveremail, sender);
 			}
 		}
 	}

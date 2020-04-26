@@ -35,20 +35,18 @@ export class StartChat extends PureComponent {
   // };
 
   _handleRegister = () => {
-    if (this.state.receiver) {
-      // event.preventDefault();
+    // event.preventDefault();
 
-      // replace | with - because in stream chat id not allowed to contains |
-      const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
-      console.log('User id: ' + user_id);
+    // replace | with - because in stream chat id not allowed to contains |
+    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+    console.log('User id: ' + user_id);
 
-      // authenticate user threw backend
-      post("http://localhost:9000/authenticate", {
-          sender: user_id
-        })
-        .then(res => res.authToken)
-        .then(this._connect);
-    }
+    // authenticate user threw backend
+    post("http://localhost:9000/authenticate", {
+        sender: user_id
+      })
+      .then(res => res.authToken)
+      .then(this._connect);
   };
 
   _handleStartChat = async () => {
@@ -212,7 +210,10 @@ export class StartChat extends PureComponent {
       stream,
       virgil
     })
-    await this._handleStartChat();
+    
+    if (this.state.receiver) {
+      await this._handleStartChat();
+    }
   };
 
   render() {
