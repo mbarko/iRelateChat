@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import LoadingSpin from 'react-loading-spin';
 import { EThree, IdentityAlreadyExistsError, LookupError } from '@virgilsecurity/e3kit';
 import { StreamChat } from 'stream-chat';
-
+import PinInput from "react-pin-input";
 import { post } from '../Http'
 
 export class StartChat extends PureComponent {
@@ -173,27 +173,25 @@ export class StartChat extends PureComponent {
     const eThree = await EThree.initialize(() => response.token);
 
     // check if the user already backup his or her private key
-    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
-    const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
+    try {
+      if (!await eThree.hasLocalPrivateKey()) {
+        const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+        await eThree.backupPrivateKey(user_id);
+        // await eThree.restorePrivateKey();
+      }
+    } catch (err) {
+      console.log(err);
+    }
 
     try {
       await eThree.register();
-      if (!hasLocalPrivateKey) {
-        await eThree.backupPrivateKey(user_id);
-        // await eThree.resetPrivateKeyBackup(user_id)
-      }
     } catch (err) {
-      try {
-        if (err instanceof IdentityAlreadyExistsError) {
-          try {
-            await eThree.backupPrivateKey(user_id);
-          } catch(error) { 
-            // Do nothing the cloude already existed
-          }
-        }
-        await eThree.restorePrivateKey(user_id);
-      } catch (e) {
-        console.log(e);
+      if (err instanceof IdentityAlreadyExistsError) {
+        // already registered, ignore
+      } else {
+        this.setState({
+          error: err.message
+        });
       }
     }
 
@@ -236,6 +234,20 @@ export class StartChat extends PureComponent {
     } else {
       return (
         <div className="container">
+         <div  style={{textAlign: "center",marginTop:"20%"}}   > <PinInput 
+            length={4} 
+            initialValue="" 
+            focus
+            onChange={(value, index) => {}} 
+            type="numeric" 
+            style={{padding: '10px'}}  
+            inputStyle={{borderColor: 'grey'}}
+            inputFocusStyle={{borderColor: '#f08ef6'}}
+            onComplete={(value, index) => {}}
+          />
+          <p> Enter a chat passcode </p>
+          <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
+          </div>
           <div className='subtitle'>
             <label>Thank you for registering, you will now recieve iRelate conversation links via email</label>
           </div> 
