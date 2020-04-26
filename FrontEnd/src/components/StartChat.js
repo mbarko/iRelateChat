@@ -173,25 +173,27 @@ export class StartChat extends PureComponent {
     const eThree = await EThree.initialize(() => response.token);
 
     // check if the user already backup his or her private key
-    try {
-      if (!await eThree.hasLocalPrivateKey()) {
-        const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
-        await eThree.backupPrivateKey(user_id);
-        // await eThree.restorePrivateKey();
-      }
-    } catch (err) {
-      console.log(err);
-    }
+    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+    const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
 
     try {
       await eThree.register();
+      if (!hasLocalPrivateKey) {
+        await eThree.backupPrivateKey(user_id);
+        // await eThree.resetPrivateKeyBackup(user_id)
+      }
     } catch (err) {
-      if (err instanceof IdentityAlreadyExistsError) {
-        // already registered, ignore
-      } else {
-        this.setState({
-          error: err.message
-        });
+      try {
+        if (err instanceof IdentityAlreadyExistsError) {
+          try {
+            await eThree.backupPrivateKey(user_id);
+          } catch(error) { 
+            // Do nothing the cloude already existed
+          }
+        }
+        await eThree.restorePrivateKey(user_id);
+      } catch (e) {
+        console.log(e);
       }
     }
 
