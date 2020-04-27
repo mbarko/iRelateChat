@@ -251,6 +251,10 @@ export class StartChat extends PureComponent {
         this.setState({
           error: 'The password is wrong please try again.'
         });
+      } else if (err.message.includes('Cloud entry') && err.message.includes("doesn't exist")) {
+        this.setState({
+          error: 'The password is wrong please try again.'
+        });
       } else {
         // if the user already backup his or her private key
         // or user already has private key
