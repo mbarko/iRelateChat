@@ -47,21 +47,27 @@ exports.requireAuthHeader = (req, res, next) => {
 };
 
 exports.authenticate = async (req, res) => {
-	if (!req.body || !req.body.sender) {
+	try {
+		if (!req.body || !req.body.sender) {
+			res.statusMessage = 'You should specify sender in body';
+			res.status(400).end();
+			return;
+		}
+
+		const key = process.env.encryptionKey;
+		var sender = CryptoJS.AES.decrypt(req.body.sender, key);
+		sender = sender.toString(CryptoJS.enc.Utf8);
+
+		const token = generateUserToken();
+
+		pseudoEncodeToken(sender, token);
+
+		res.json({
+			authToken: token
+		});
+    } catch(err) {
 		res.statusMessage = 'You should specify sender in body';
 		res.status(400).end();
 		return;
 	}
-
-	const key = process.env.encryptionKey;
-	var sender = CryptoJS.AES.decrypt(req.body.sender, key);
-    sender = sender.toString(CryptoJS.enc.Utf8);
-
-	const token = generateUserToken();
-
-	pseudoEncodeToken(sender, token);
-
-	res.json({
-		authToken: token
-	});
 };
