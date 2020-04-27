@@ -119,3 +119,9 @@ code {
     text-align: center;
   }
 }
+
+.danger {
+  padding: 20px;
+  color: red;
+  font-weight: 500;
+}

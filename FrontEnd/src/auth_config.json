@@ -1,4 +1,5 @@
 {
     "domain": "irelate.auth0.com",
-    "clientId": "vrSafo2Q4halTfgYfEGImuFy3GNsS2kk"
+    "clientId": "vrSafo2Q4halTfgYfEGImuFy3GNsS2kk",
+    "encryptionKey": "feWbAVLhd3r7p6RTb65WA4QhMMyK95BkDPAZ3mNJmbDQVA9KBQ4vK4GYfJFXyjWY"
 }

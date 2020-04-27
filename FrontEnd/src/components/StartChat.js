@@ -1,9 +1,26 @@
 import React, { PureComponent } from 'react';
 import LoadingSpin from 'react-loading-spin';
-import { EThree, IdentityAlreadyExistsError, LookupError } from '@virgilsecurity/e3kit';
+import CryptoJS from 'crypto-js';
+import config from "../auth_config.json";
+
+import { EThree, IdentityAlreadyExistsError, LookupError, WrongKeyknoxPasswordError } from '@virgilsecurity/e3kit';
 import { StreamChat } from 'stream-chat';
 import PinInput from 'react-pin-input';
 import { post } from '../Http'
+
+const Loading = props => (
+  <div className="container">
+    <div className='subtitle'>
+      <LoadingSpin
+        duration = '2s'
+        width = '15px'
+        timingFunction = 'ease-in-out'
+        size = '100px'
+        primaryColor = 'blue'
+        />
+    </div> 
+  </div>
+)
 
 export class StartChat extends PureComponent {
   constructor(props) {
@@ -39,8 +56,11 @@ export class StartChat extends PureComponent {
     // event.preventDefault();
 
     // replace | with - because in stream chat id not allowed to contains |
-    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+    var user_id = this.state.user.sub.replace('auth0|', 'auth0-');
     console.log('User id: ' + user_id);
+
+    const key = config.encryptionKey;
+    user_id = CryptoJS.AES.encrypt(user_id, key).toString();
 
     // authenticate user threw backend
     post("http://localhost:9000/authenticate", {
@@ -173,28 +193,13 @@ export class StartChat extends PureComponent {
     const response = await post("http://localhost:9000/virgil-credentials", {}, backendAuthToken);
     const eThree = await EThree.initialize(() => response.token);
 
-    // check if the user already backup his or her private key
-    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
-    const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
-
     try {
       await eThree.register();
-      if (!hasLocalPrivateKey) {
-        await eThree.backupPrivateKey(user_id);
-        // await eThree.resetPrivateKeyBackup(user_id)
-      }
     } catch (err) {
-      try {
-        if (err instanceof IdentityAlreadyExistsError) {
-          try {
-            await eThree.backupPrivateKey(user_id);
-          } catch(error) { 
-            // Do nothing the cloude already existed
-          }
-        }
-        await eThree.restorePrivateKey(user_id);
-      } catch (e) {
-        console.log(e);
+      if (err instanceof IdentityAlreadyExistsError) {
+        // already registered, ignore
+      } else {
+        console.log(err.message);
       }
     }
 
@@ -213,45 +218,77 @@ export class StartChat extends PureComponent {
       stream,
       virgil
     })
-    
-    if (this.state.receiver) {
+
+    if (this.state.receiver && this.state.pin) {
       await this._handleStartChat();
     }
   };
 
+  _backupPrivateKey = async(pwd, length) => {
+    const eThree = this.state.virgil.eThree;
+
+    // check if the user already backup his or her private key
+    const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
+
+    try {
+      if (hasLocalPrivateKey) {
+        // try to backp user private key
+        await eThree.backupPrivateKey(pwd);
+        // await eThree.resetPrivateKeyBackup(pwd)
+      } else {
+        // restore user private key if user does not have one
+        await eThree.restorePrivateKey(pwd);
+      }
+      
+      // store user pin
+      this.setState({ pin: pwd });
+
+      if (this.state.receiver) {
+        await this._handleStartChat();
+      }
+    } catch(err) {
+      if (err instanceof WrongKeyknoxPasswordError) {
+        this.setState({
+          error: 'The password is wrong please try again.'
+        });
+      } else {
+        // if the user already backup his or her private key
+        // or user already has private key
+
+        this.setState({ pin: pwd });
+        if (this.state.receiver) {
+          await this._handleStartChat();
+        }
+      }
+    }
+  }
+
   render() {
-    if (this.state.pin == null)
+    if (this.state.virgil == null){
+      return (<Loading />)
+    }
+    else if (this.state.pin == null)
     {
-      return(
-      <div style={{textAlign: "center",marginTop:"20%"}}> <PinInput 
-            length={4} 
-            initialValue="" 
+      return (
+        <div style={{textAlign: "center",marginTop:"20%"}}> 
+          <PinInput 
+            length={5} 
+            initialValue=""
             focus
-            onChange={(value, index) => {}} 
             type="numeric" 
             style={{padding: '10px'}}  
             inputStyle={{borderColor: 'grey'}}
             inputFocusStyle={{borderColor: '#f08ef6'}}
-            onComplete={(value, index) => {}}
+            onComplete={(value, index) => {this._backupPrivateKey(value, index)}}
           />
           <p> Enter a chat passcode </p>
           <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
-          </div>)
-    }
-    else if(this.state.receiver) {
-      return (
-        <div className="container">
-          <div className='subtitle'>
-            <LoadingSpin
-              duration = '2s'
-              width = '15px'
-              timingFunction = 'ease-in-out'
-              size = '100px'
-              primaryColor = 'blue'
-              />
-          </div> 
+          <p className="danger">{this.state.error}</p>
         </div>
       )
+    }
+    else if(this.state.receiver) {
+      return (<Loading />)
     } else {
       return (
         <div className="container">

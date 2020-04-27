@@ -8,6 +8,7 @@
     "@virgilsecurity/e3kit-native": "^2.2.0",
     "@virgilsecurity/key-storage-rn": "^1.0.0",
     "@virgilsecurity/keyknox": "^1.0.0",
+    "crypto-js": "^4.0.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-loading-spin": "^1.0.9",

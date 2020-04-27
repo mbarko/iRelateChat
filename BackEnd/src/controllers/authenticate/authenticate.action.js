@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const crypto = require('crypto');
+const CryptoJS = require("crypto-js");
 
 const usersStorage = new Map();
 
@@ -52,9 +53,13 @@ exports.authenticate = async (req, res) => {
 		return;
 	}
 
+	const key = process.env.encryptionKey;
+	var sender = CryptoJS.AES.decrypt(req.body.sender, key);
+    sender = sender.toString(CryptoJS.enc.Utf8);
+
 	const token = generateUserToken();
 
-	pseudoEncodeToken(req.body.sender, token);
+	pseudoEncodeToken(sender, token);
 
 	res.json({
 		authToken: token
