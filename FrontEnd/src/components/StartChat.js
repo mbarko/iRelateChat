@@ -3,7 +3,7 @@ import LoadingSpin from 'react-loading-spin';
 import CryptoJS from 'crypto-js';
 import config from "../auth_config.json";
 
-import { EThree, IdentityAlreadyExistsError, LookupError, WrongKeyknoxPasswordError } from '@virgilsecurity/e3kit';
+import { EThree, IdentityAlreadyExistsError, LookupError } from '@virgilsecurity/e3kit';
 import { StreamChat } from 'stream-chat';
 import PinInput from 'react-pin-input';
 import { post } from '../Http'
@@ -63,7 +63,7 @@ export class StartChat extends PureComponent {
     user_id = CryptoJS.AES.encrypt(user_id, key).toString();
 
     // authenticate user threw backend
-    post("http://localhost:9000/authenticate", {
+    post(`${process.env.REACT_APP_DOMAIN}/authenticate`, {
         sender: user_id
       })
       .then(res => res.authToken)
@@ -119,6 +119,7 @@ export class StartChat extends PureComponent {
 
       this.props.onConnect({
         sender: user_id,
+        pin: this.state.pin,
         receiver: this.state.receiver,
         stream: {
           ...this.state.stream,
@@ -148,7 +149,7 @@ export class StartChat extends PureComponent {
 
     const id = this.state.user.sub;
 
-    const response = await post("http://localhost:9000/Auth0Manager-action", {
+    const response = await post(`${process.env.REACT_APP_DOMAIN}/Auth0Manager-action`, {
       id
     }, backendAuthToken);
 
@@ -176,7 +177,7 @@ export class StartChat extends PureComponent {
       image: picture
     };
 
-    const response = await post("http://localhost:9000/stream-credentials", {
+    const response = await post(`${process.env.REACT_APP_DOMAIN}/stream-credentials`, {
       data
     }, backendAuthToken);
 
@@ -190,7 +191,7 @@ export class StartChat extends PureComponent {
   };
 
   _connectVirgil = async (backendAuthToken) => {
-    const response = await post("http://localhost:9000/virgil-credentials", {}, backendAuthToken);
+    const response = await post(`${process.env.REACT_APP_DOMAIN}/virgil-credentials`, {}, backendAuthToken);
     const eThree = await EThree.initialize(() => response.token);
 
     try {
@@ -218,14 +219,11 @@ export class StartChat extends PureComponent {
       stream,
       virgil
     })
-
-    if (this.state.receiver && this.state.pin) {
-      await this._handleStartChat();
-    }
   };
 
   _backupPrivateKey = async(pwd, length) => {
     const eThree = this.state.virgil.eThree;
+    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
 
     // check if the user already backup his or her private key
     const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
@@ -245,24 +243,40 @@ export class StartChat extends PureComponent {
 
       if (this.state.receiver) {
         await this._handleStartChat();
+      } else {
+        this.props.onConnect({
+          sender: user_id,
+          pin: this.state.pin,
+          virgil: {
+            ...this.state.virgil
+          }
+        });
       }
     } catch(err) {
-      if (err instanceof WrongKeyknoxPasswordError) {
-        this.setState({
-          error: 'The password is wrong please try again.'
-        });
-      } else if (err.message.includes('Cloud entry') && err.message.includes("doesn't exist")) {
-        this.setState({
-          error: 'The password is wrong please try again.'
-        });
-      } else {
+      if (err.message.includes(`Cloud entry '${user_id}' already exists`)) {
         // if the user already backup his or her private key
         // or user already has private key
 
         this.setState({ pin: pwd });
         if (this.state.receiver) {
           await this._handleStartChat();
+        } else {
+          this.props.onConnect({
+            sender: user_id,
+            pin: this.state.pin,
+            virgil: {
+              ...this.state.virgil
+            }
+          });
         }
+      } else if (err.message.includes('Password from remote private key storage is invalid')) {
+        this.setState({
+          error: 'The password is wrong please try again.'
+        });
+      } else {
+        this.setState({
+          error: err.message
+        });
       }
     }
   }
