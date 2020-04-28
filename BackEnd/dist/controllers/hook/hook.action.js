@@ -7,6 +7,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _dotenv.default.config();
 
 const nodemailer = require('nodemailer');
+var _streamChat = require("stream-chat");
 
 const Auth0Manager = require("../../utils/Auth0Manager");
 
@@ -36,7 +37,7 @@ const mailto = (reciveremail, sender) => {
     html: `	
 				<p>${sender.name} sent you a message</p>
 				
-				<a href="http://localhost:3000/?id=${sender.id}" target=_blank>
+				<a href="${process.env.appurl}/?id=${sender.id}" target=_blank>
 					Click here to see the message
 				</a>
 
@@ -67,6 +68,7 @@ const mailto = (reciveremail, sender) => {
 
 			`
   };
+
   transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
@@ -77,9 +79,19 @@ const mailto = (reciveremail, sender) => {
 };
 
 exports.sendMail = async (req, res) => {
-  const data = req.body; // check if the message is new
+  const data = req.body;
 
-  if (data.type == "message.new") {
+  // verify the sender is stream chat
+  const apiKey = process.env.STREAM_API_KEY;
+  const apiSecret = process.env.STREAM_API_SECRET;
+  const client = new _streamChat.StreamChat(apiKey, apiSecret);
+  const valid = client.verifyWebhook(req.rawBody, req.headers['x-signature']);
+
+  console.log('test: ' + valid);
+
+  // check if the message is new
+
+  if (data.type == "message.new" && valid) {
     // check if there is a member who is offline to ssend message to
     for (let i = 0; i < data.members.length; i++) {
       const member = data.members[i];

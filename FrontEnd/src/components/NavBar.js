@@ -3,7 +3,21 @@
 import React from "react";
 import { useAuth0 } from "../react-auth0-spa";
 
-const NavBar = () => {
+const Clear = (virgil, logout) =>{
+  if (virgil) {
+    const eThree = virgil.eThree;
+    eThree.cleanup()
+      .then(() => {
+        console.log('success');
+        logout();
+      })
+      .catch(e => console.error('error: ', e.message));
+  } else {
+    logout();
+  }
+}
+
+const NavBar = (prop) => {
   const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
   return (
@@ -12,7 +26,7 @@ const NavBar = () => {
         <button onClick={() => loginWithRedirect({})}>Log in</button>
       )}
 
-      {isAuthenticated && <button onClick={() => logout()}>Log out</button>}
+      {isAuthenticated && <button onClick={() => Clear(prop.virgil, logout)}>Log out</button>}
     </div>
   );
 };

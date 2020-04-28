@@ -20,7 +20,11 @@ api.use(bodyParser.urlencoded({
     extended: true
 }));
 
-api.use(bodyParser.json());
+api.use(bodyParser.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf
+    }
+}));
 
 api.listen(process.env.PORT, error => {
     if (error) {

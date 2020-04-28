@@ -16,7 +16,7 @@ import './App.css';
 
 function App() {
  
-  const { loading } = useAuth0();
+  const { isAuthenticated, loading } = useAuth0();
   
   if (loading) {
     return (
@@ -37,9 +37,11 @@ function App() {
   return (
     <div>
       <Router history={history}>
+      {!isAuthenticated && (
         <header>
           <NavBar />
         </header>
+      )}
 
         <Switch>
           <PrivateRoute path="/" component={EncryptedChat}>
