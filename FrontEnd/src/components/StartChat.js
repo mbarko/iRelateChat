@@ -146,12 +146,7 @@ export class StartChat extends PureComponent {
 
   _getUserData = async (backendAuthToken) => {
     // user data used to create chatstream account retrive from auth0
-
-    const id = this.state.user.sub;
-
-    const response = await post(`${process.env.REACT_APP_DOMAIN}/Auth0Manager-action`, {
-      id
-    }, backendAuthToken);
+    const response = await post(`${process.env.REACT_APP_DOMAIN}/Auth0Manager-action`, {}, backendAuthToken);
 
     this.setState({
       sender: response.user.user_metadata.firstname

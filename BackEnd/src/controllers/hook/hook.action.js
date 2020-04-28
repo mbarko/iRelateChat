@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { StreamChat } from 'stream-chat';
 
 dotenv.config();
 
@@ -76,9 +77,15 @@ const mailto = (reciveremail, sender) => {
 
 exports.sendMail = async (req, res) => {
 	const data = req.body;
+	
+	const apiKey = process.env.STREAM_API_KEY;
+	const apiSecret = process.env.STREAM_API_SECRET;
+	const client = new StreamChat(apiKey, apiSecret);
+	
+	const valid = client.verifyWebhook(req.rawBody, req.headers['x-signature']);
 
 	// check if the message is new
-	if (data.type == "message.new") {
+	if (data.type == "message.new" && valid) {
 		// check if there is a member who is offline to ssend message to
 		for (let i = 0; i < data.members.length; i++) {
 			const member = data.members[i];
