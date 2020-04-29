@@ -13,7 +13,8 @@ export class MessageInputEncrypted extends PureComponent {
   render = () => {
     const newProps = {
       ...this.props,
-      sendMessage: this.sendMessageEncrypted
+      sendMessage: this.sendMessageEncrypted,
+      focus: true
     };
 
     return <MessageInput {...newProps} />

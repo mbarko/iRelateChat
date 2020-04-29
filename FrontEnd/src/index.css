@@ -125,3 +125,10 @@ code {
   color: red;
   font-weight: 500;
 }
+
+@media screen and (max-width: 960px) {
+  .str-chat {
+    max-height: 100vh !important;
+    height: 93vh !important;
+  }
+}

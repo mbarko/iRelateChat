@@ -37,6 +37,7 @@ export class StartChat extends PureComponent {
       virgil: null,
       error: null,
       pin: null,
+      load: false,
     }
 
     console.log("user", props.user);
@@ -217,6 +218,7 @@ export class StartChat extends PureComponent {
   };
 
   _backupPrivateKey = async(pwd, length) => {
+    this.setState({ load: true })
     const eThree = this.state.virgil.eThree;
     const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
 
@@ -266,11 +268,13 @@ export class StartChat extends PureComponent {
         }
       } else if (err.message.includes('Password from remote private key storage is invalid')) {
         this.setState({
-          error: 'The password is wrong please try again.'
+          error: 'The password is wrong please try again.',
+          load: false
         });
       } else {
         this.setState({
-          error: err.message
+          error: err.message,
+          load: false
         });
       }
     }
@@ -282,23 +286,27 @@ export class StartChat extends PureComponent {
     }
     else if (this.state.pin == null)
     {
-      return (
-        <div style={{textAlign: "center",marginTop:"20%"}}> 
-          <PinInput 
-            length={5} 
-            initialValue=""
-            focus
-            type="numeric" 
-            style={{padding: '10px'}}  
-            inputStyle={{borderColor: 'grey'}}
-            inputFocusStyle={{borderColor: '#f08ef6'}}
-            onComplete={(value, index) => {this._backupPrivateKey(value, index)}}
-          />
-          <p> Enter a chat passcode </p>
-          <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
-          <p className="danger">{this.state.error}</p>
-        </div>
-      )
+      if(this.state.load) {
+        return (<Loading />)
+      } else {
+        return (
+          <div style={{textAlign: "center",marginTop:"20%"}}> 
+            <PinInput 
+              length={5} 
+              initialValue=""
+              focus
+              type="numeric" 
+              style={{padding: '10px'}}  
+              inputStyle={{borderColor: 'grey'}}
+              inputFocusStyle={{borderColor: '#f08ef6'}}
+              onComplete={(value, index) => {this._backupPrivateKey(value, index)}}
+            />
+            <p> Enter a chat passcode </p>
+            <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
+            <p className="danger">{this.state.error}</p>
+          </div>
+        )
+      }
     }
     else if(this.state.receiver) {
       return (<Loading />)
