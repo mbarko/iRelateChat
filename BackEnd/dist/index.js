@@ -30,7 +30,11 @@ api.use((0, _helmet.default)());
 api.use(_bodyParser.default.urlencoded({
   extended: true
 }));
-api.use(_bodyParser.default.json());
+api.use(_bodyParser.default.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 api.listen(process.env.PORT, error => {
   if (error) {
     console.warn(error);
