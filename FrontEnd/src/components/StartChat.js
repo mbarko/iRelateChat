@@ -291,6 +291,9 @@ export class StartChat extends PureComponent {
       } else {
         return (
           <div style={{textAlign: "center",marginTop:"20%"}}> 
+            
+            <p><label htmlFor="passcode">Enter a chat pass code</label></p>
+
             <PinInput 
               length={5} 
               initialValue=""
@@ -300,8 +303,9 @@ export class StartChat extends PureComponent {
               inputStyle={{borderColor: 'grey'}}
               inputFocusStyle={{borderColor: '#f08ef6'}}
               onComplete={(value, index) => {this._backupPrivateKey(value, index)}}
+              name="passcode"
             />
-            <p> Enter a chat passcode </p>
+
             <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
             <p className="danger">{this.state.error}</p>
           </div>
