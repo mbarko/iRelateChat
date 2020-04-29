@@ -125,3 +125,27 @@ code {
   color: red;
   font-weight: 500;
 }
+
+@media screen and (max-width: 960px) {
+  .str-chat {
+    max-height: 100vh !important;
+    height: 93vh !important;
+  }
+}
+
+.sendContainer{
+  float: right;
+  margin: 7px;
+  width: 22px;
+  height: 22px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle !important;
+}
+
+/* .str-chat__input-emojiselect{
+  right: 47px !important;
+} */

@@ -3,17 +3,18 @@
 import React from "react";
 import { useAuth0 } from "../react-auth0-spa";
 
-const Clear = (virgil, logout) =>{
+const Clear = async (virgil, logout) =>{
+  const url = process.env.REACT_APP_Client;
   if (virgil) {
     const eThree = virgil.eThree;
-    eThree.cleanup()
-      .then(() => {
-        console.log('success');
-        logout();
-      })
-      .catch(e => console.error('error: ', e.message));
+    await eThree.cleanup();
+    await logout({
+      returnTo: url
+    });
   } else {
-    logout();
+    await logout({
+      returnTo: url
+    });
   }
 }
 
