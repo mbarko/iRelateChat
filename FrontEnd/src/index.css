@@ -149,3 +149,7 @@ code {
 /* .str-chat__input-emojiselect{
   right: 47px !important;
 } */
+
+.str-chat__header-hamburger{
+  display: none !important;
+}
