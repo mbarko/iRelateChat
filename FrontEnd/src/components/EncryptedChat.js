@@ -45,7 +45,9 @@ export class EncryptedChat extends React.Component {
             <Channel channel={this.state.stream.channel}>
               <Window>
                 <ChannelHeader/>
-                <MessageList Message={this._buildMessageEncrypted}/>
+              
+                <MessageList  Message={this._buildMessageEncrypted}/>
+                
                 <MessageInputEncrypted virgil={this.state.virgil} channel={this.state.stream.channel}/>
               </Window>
               <Thread/>

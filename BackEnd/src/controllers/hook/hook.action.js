@@ -34,7 +34,7 @@ const mailto = (reciveremail, sender) => {
 		html: `	
 				<p>${sender.name} sent you a message</p>
 				
-				<a href="http://localhost:3000/?id=${sender.id}" target=_blank>
+				<a href="${process.env.REACT_APP_CLIENT}/?id=${sender.id}" target=_blank>
 					Click here to see the message
 				</a>
 

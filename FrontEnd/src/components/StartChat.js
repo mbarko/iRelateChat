@@ -295,10 +295,10 @@ export class StartChat extends PureComponent {
             <p><label htmlFor="passcode">Enter a chat pass code</label></p>
 
             <PinInput 
-              length={5} 
+              length={4} 
               initialValue=""
               focus
-              type="numeric" 
+              inputmode="numeric" 
               style={{padding: '10px'}}  
               inputStyle={{borderColor: 'grey'}}
               inputFocusStyle={{borderColor: '#f08ef6'}}
