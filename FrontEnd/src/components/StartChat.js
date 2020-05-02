@@ -306,7 +306,7 @@ export class StartChat extends PureComponent {
               name="passcode"
             />
 
-            <p style={{padding: "20px"}}>You’ll be asked for this code each time you access a chat</p>
+            <p style={{padding: "20px"}}>Make sure you remember this code. You’ll be asked for this code each time you access a chat</p>
             <p className="danger">{this.state.error}</p>
           </div>
         )
@@ -317,8 +317,13 @@ export class StartChat extends PureComponent {
     } else {
       return (
         <div className="container">
+         
           <div className='subtitle'>
-            <label>Thank you for registering, you will now recieve iRelate conversation links via email</label>
+          <img style={{height: '97px',margin:'20px'}} src={require('../interface.svg')}/>
+            <p>Thank you for registering, You will now recieve messages from prospect clients via your email.
+              Once a message is recieved click on see message link to chat privately with your client.
+              All conversations are secure . Your email is not shared 
+            </p>
           </div> 
         </div>
       )

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Channel, ChannelHeader, Chat, MessageList, Thread, Window } from 'stream-chat-react';
+import { Channel, ChannelHeader, Chat, MessageList,  Window ,Thread} from 'stream-chat-react';
 
 import { MessageEncrypted } from './MessageEncrypted';
 import { MessageInputEncrypted } from "./MessageInputEncrypted";
@@ -44,13 +44,12 @@ export class EncryptedChat extends React.Component {
           <Chat client={this.state.stream.client} theme={'messaging light'}>
             <Channel channel={this.state.stream.channel}>
               <Window>
-                <ChannelHeader/>
-              
+                <ChannelHeader/>             
                 <MessageList  Message={this._buildMessageEncrypted}/>
-                
                 <MessageInputEncrypted virgil={this.state.virgil} channel={this.state.stream.channel}/>
+              
               </Window>
-              <Thread/>
+             
             </Channel>
           </Chat>
         </div>
