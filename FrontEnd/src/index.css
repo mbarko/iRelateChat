@@ -134,12 +134,19 @@ code {
     max-height: 100vh !important;
     height: 90vh !important;
   }
-  .str-chat__input-emojiselect{
+
+  .str-chat__input-emojiselect {
     display: none !important;
+    /* Dipslay the emoji in small screen */
+    right: 55px !important;
+  }
+
+  .pinContainer {
+    margin-top: 20% !important;
   }
 }
 
-.sendContainer{
+.sendContainer {
   float: right;
   margin: 7px;
   width: 22px;
@@ -152,12 +159,15 @@ code {
   vertical-align: middle !important;
 }
 
-/* .str-chat__input-emojiselect{
-  right: 47px !important;
-} */
-
-
-
-.str-chat__header-hamburger{
+.str-chat__message-simple__actions {
   display: none !important;
+}
+
+.str-chat__header-hamburger {
+  display: none !important;
+}
+
+.pinContainer {
+  text-align: center;
+  margin-top: 10%;
 }

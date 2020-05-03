@@ -1,4 +1,4 @@
-import { MessageInput, SendButton } from "stream-chat-react";
+import { MessageInput } from "stream-chat-react";
 import React, { PureComponent } from 'react';
 
 // const Csendbutton = props => (
@@ -22,6 +22,10 @@ export class MessageInputEncrypted extends PureComponent {
       ...data,
       text: encryptedText
     });
+
+
+    document.getElementsByTagName('textarea')[0].disabled = false;
+    document.getElementsByTagName('textarea')[0].focus();
   };
 
   render = () => {
@@ -32,6 +36,6 @@ export class MessageInputEncrypted extends PureComponent {
     };
 
     //SendButton={Csendbutton}
-    return <MessageInput {...newProps}  />
+    return <MessageInput {...newProps} />
   }
 }

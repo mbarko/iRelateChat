@@ -1,5 +1,5 @@
 import React from 'react';
-import { Channel, ChannelHeader, Chat, MessageList,  Window ,Thread} from 'stream-chat-react';
+import { Channel, ChannelHeader, Chat, MessageList,  Window} from 'stream-chat-react';
 
 import { MessageEncrypted } from './MessageEncrypted';
 import { MessageInputEncrypted } from "./MessageInputEncrypted";
@@ -14,8 +14,7 @@ export class EncryptedChat extends React.Component {
       sender: props.user,
       receiver: null,
       stream: null,
-      virgil: null,
-      pin: null
+      virgil: null
     };
   }
 
@@ -36,36 +35,19 @@ export class EncryptedChat extends React.Component {
   render = () => {
     if (this.state.stream && this.state.virgil) {
       return (
-        <div>
-          <header>
-            <NavBar virgil={this.state.virgil}  />
-          </header>
-
-          <Chat client={this.state.stream.client} theme={'messaging light'}>
-            <Channel channel={this.state.stream.channel}>
-              <Window>
-                <ChannelHeader/>             
-                <MessageList  Message={this._buildMessageEncrypted}/>
-                <MessageInputEncrypted virgil={this.state.virgil} channel={this.state.stream.channel}/>
-              
-              </Window>
-             
-            </Channel>
-          </Chat>
-        </div>
+        <Chat client={this.state.stream.client} theme={'messaging light'}>
+          <Channel channel={this.state.stream.channel}>
+            <Window>
+              <NavBar virgil={this.state.virgil}  />
+              <ChannelHeader/>             
+              <MessageList Message={this._buildMessageEncrypted} />
+              <MessageInputEncrypted virgil={this.state.virgil} channel={this.state.stream.channel}/>
+            </Window>
+          </Channel>
+        </Chat>
       )
     } else {
-      return (
-        <div>
-          {this.state.pin && (  
-            <header>
-              <NavBar virgil={this.state.virgil} />
-            </header>
-          )}
-
-          <StartChat user={this.state.sender} onConnect={this.onConnect}/>
-        </div>
-      )
+      return <StartChat user={this.state.sender} onConnect={this.onConnect}/>
     }
   }
 }

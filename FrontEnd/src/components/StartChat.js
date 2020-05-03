@@ -38,6 +38,8 @@ export class StartChat extends PureComponent {
       error: null,
       pin: null,
       load: false,
+      verify: false,
+      vpin: null
     }
 
     console.log("user", props.user);
@@ -120,7 +122,6 @@ export class StartChat extends PureComponent {
 
       this.props.onConnect({
         sender: user_id,
-        pin: this.state.pin,
         receiver: this.state.receiver,
         stream: {
           ...this.state.stream,
@@ -148,6 +149,23 @@ export class StartChat extends PureComponent {
   _getUserData = async (backendAuthToken) => {
     // user data used to create chatstream account retrive from auth0
     const response = await post(`${process.env.REACT_APP_DOMAIN}/Auth0Manager-action`, {}, backendAuthToken);
+
+    // Check if it the user first time to log in
+    // Get last login time
+    const oldDate = new Date(response.user.last_login);
+    const last_login = `${oldDate.getFullYear()}-${oldDate.getMonth() + 1}-${oldDate.getDate()}   ${oldDate.getHours()}:${oldDate.getMinutes()}`;
+
+    // get the number of logins
+    const numberofLogin = response.user.logins_count;
+    // get current date
+    const newDate = new Date()
+    const date = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}   ${newDate.getHours()}:${newDate.getMinutes()}`;
+
+    if(numberofLogin === 1 && last_login === date){
+      this.setState({
+        verify: true
+      })
+    }
 
     this.setState({
       sender: response.user.user_metadata.firstname
@@ -218,65 +236,83 @@ export class StartChat extends PureComponent {
   };
 
   _backupPrivateKey = async(pwd, length) => {
-    this.setState({ load: true })
-    const eThree = this.state.virgil.eThree;
-    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+    if(!this.state.verify) {
+      this.setState({ load: true })
+      const eThree = this.state.virgil.eThree;
+      const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
 
-    // check if the user already backup his or her private key
-    const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
+      // check if the user already backup his or her private key
+      const hasLocalPrivateKey = await eThree.hasLocalPrivateKey();
 
-    try {
-      if (hasLocalPrivateKey) {
-        // try to backp user private key
-        await eThree.backupPrivateKey(pwd);
-        // await eThree.resetPrivateKeyBackup(pwd)
-      } else {
-        // restore user private key if user does not have one
-        await eThree.restorePrivateKey(pwd);
-      }
-      
-      // store user pin
-      this.setState({ pin: pwd });
-
-      if (this.state.receiver) {
-        await this._handleStartChat();
-      } else {
-        this.props.onConnect({
-          sender: user_id,
-          pin: this.state.pin,
-          virgil: {
-            ...this.state.virgil
-          }
-        });
-      }
-    } catch(err) {
-      if (err.message.includes(`Cloud entry '${user_id}' already exists`)) {
-        // if the user already backup his or her private key
-        // or user already has private key
-
+      try {
+        if (hasLocalPrivateKey) {
+          // try to backp user private key
+          await eThree.backupPrivateKey(pwd);
+          // await eThree.resetPrivateKeyBackup(pwd)
+        } else {
+          // restore user private key if user does not have one
+          await eThree.restorePrivateKey(pwd);
+        }
+        
+        // store user pin
         this.setState({ pin: pwd });
+
         if (this.state.receiver) {
           await this._handleStartChat();
         } else {
           this.props.onConnect({
             sender: user_id,
-            pin: this.state.pin,
             virgil: {
               ...this.state.virgil
             }
           });
         }
-      } else if (err.message.includes('Password from remote private key storage is invalid')) {
-        this.setState({
-          error: 'The password is wrong please try again.',
-          load: false
-        });
-      } else {
-        this.setState({
-          error: err.message,
-          load: false
-        });
+      } catch(err) {
+        if (err.message.includes(`Cloud entry '${user_id}' already exists`)) {
+          // if the user already backup his or her private key
+          // or user already has private key
+
+          this.setState({ pin: pwd });
+          if (this.state.receiver) {
+            await this._handleStartChat();
+          } else {
+            this.props.onConnect({
+              sender: user_id,
+              virgil: {
+                ...this.state.virgil
+              }
+            });
+          }
+        } else if (err.message.includes('Password from remote private key storage is invalid')) {
+          this.setState({
+            error: 'The password is wrong please try again.',
+            load: false
+          });
+        } else {
+          this.setState({
+            error: err.message,
+            load: false
+          });
+        }
       }
+    } else {
+      this.setState({
+        vpin:pwd
+      });
+    }
+  }
+
+  _verifyPassword = async(pwd, length) => {
+    const pin = this.state.vpin;
+    if(pin === pwd) {
+      this.setState({
+        verify:false
+      });
+      await this._backupPrivateKey(pwd, length);
+    } else {
+      this.setState({
+        error: 'The pin is mis mismatched. Please try again.'
+      })
     }
   }
 
@@ -290,7 +326,7 @@ export class StartChat extends PureComponent {
         return (<Loading />)
       } else {
         return (
-          <div style={{textAlign: "center",marginTop:"20%"}}> 
+          <div className="pinContainer"> 
             
             <p><label htmlFor="passcode">Enter a chat pass code</label></p>
 
@@ -306,6 +342,24 @@ export class StartChat extends PureComponent {
               name="passcode"
             />
 
+            {this.state.verify && (
+              <div>
+                <p><label htmlFor="Verifypasscode">Please Verify Chat pass code</label></p>
+
+                <PinInput 
+                  length={4} 
+                  initialValue=""
+                  focus
+                  inputmode="numeric" 
+                  style={{padding: '10px'}}  
+                  inputStyle={{borderColor: 'grey'}}
+                  inputFocusStyle={{borderColor: '#f08ef6'}}
+                  onComplete={(value, index) => {this._verifyPassword(value, index)}}
+                  name="Verifypasscode"
+                />
+              </div>
+            )}
+
             <p style={{padding: "20px"}}>Make sure you remember this code. You’ll be asked for this code each time you access a chat</p>
             <p className="danger">{this.state.error}</p>
           </div>
@@ -319,7 +373,7 @@ export class StartChat extends PureComponent {
         <div className="container">
          
           <div className='subtitle'>
-          <img style={{height: '97px',margin:'20px'}} src={require('../interface.svg')}/>
+          <img style={{height: '97px',margin:'20px'}} alt='Irelate therapy Chat' src={require('../interface.svg')}/>
             <p>Thank you for registering, You will now recieve messages from prospect clients via your email.
               Once a message is recieved click on see message link to chat privately with your client.
               All conversations are secure . Your email is not shared 
