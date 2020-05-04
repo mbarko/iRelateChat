@@ -10,7 +10,7 @@ import { post } from '../Http'
 
 const Loading = props => (
   <div className="container">
-    <div className='subtitle'>
+    <div className='subtitleloading'>
       <LoadingSpin
         duration = '2s'
         width = '15px'
@@ -150,23 +150,6 @@ export class StartChat extends PureComponent {
     // user data used to create chatstream account retrive from auth0
     const response = await post(`${process.env.REACT_APP_DOMAIN}/Auth0Manager-action`, {}, backendAuthToken);
 
-    // Check if it the user first time to log in
-    // Get last login time
-    const oldDate = new Date(response.user.last_login);
-    const last_login = `${oldDate.getFullYear()}-${oldDate.getMonth() + 1}-${oldDate.getDate()}   ${oldDate.getHours()}:${oldDate.getMinutes()}`;
-
-    // get the number of logins
-    const numberofLogin = response.user.logins_count;
-    // get current date
-    const newDate = new Date()
-    const date = `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}   ${newDate.getHours()}:${newDate.getMinutes()}`;
-
-    if(numberofLogin === 1 && last_login === date){
-      this.setState({
-        verify: true
-      })
-    }
-
     this.setState({
       sender: response.user.user_metadata.firstname
     });
@@ -215,6 +198,19 @@ export class StartChat extends PureComponent {
         // already registered, ignore
       } else {
         console.log(err.message);
+      }
+    }
+
+    const user_id = this.state.user.sub.replace('auth0|', 'auth0-');
+    try{
+      // Check if it the user first time to log in 
+      // note: add an imposible writen password to check
+      await eThree.restorePrivateKey('00000000qwe23123')
+    } catch(err) {
+      if(err.message.includes(`Cloud entry '${user_id}' doesn't exist`)) {
+        this.setState({
+          verify: true
+        });
       }
     }
 
